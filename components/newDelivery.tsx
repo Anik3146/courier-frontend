@@ -19,7 +19,12 @@ import {
 import { CiMenuFries } from "react-icons/ci";
 import { MdDashboard } from "react-icons/md";
 
-export default function NewDeliveryForm() {
+export default function NewDeliveryForm({
+  delivery_charge,
+  setDeliveryDivision,
+  setDeliveryType,
+  setWeightQuantity,
+}: any) {
   // State to store product types
   const [productTypes, setProductTypes] = useState<any[]>([]);
   const [selectedProductType, setSelectedProductType] = useState<any>("");
@@ -41,6 +46,19 @@ export default function NewDeliveryForm() {
     description_and_price: "",
     merchant_id: 1,
   });
+
+  useEffect(() => {
+    setDeliveryDivision(formData.division);
+    setDeliveryType(formData.delivery_type);
+    setWeightQuantity(formData.total_weight * formData.quantity);
+  }, [
+    formData.division,
+    formData.quantity,
+    formData.total_weight,
+    formData.delivery_type,
+  ]);
+
+  useEffect(() => {}, [delivery_charge]);
 
   // Fetch product types from the backend when the component mounts
   useEffect(() => {
@@ -96,6 +114,7 @@ export default function NewDeliveryForm() {
       thana: formData.thana,
       delivery_status: "Pending",
       pickup_status: "Pending",
+      delivery_charge: delivery_charge,
       // Example static values for agent, pickupMan, and deliveryMan
       // agent_id: 1,
       // pickup_man_id: 1,
