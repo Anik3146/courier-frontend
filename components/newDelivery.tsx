@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { CiMenuFries } from "react-icons/ci";
 import { MdDashboard } from "react-icons/md";
+import { toast } from "react-toastify";
 
 export default function NewDeliveryForm({
   delivery_charge,
@@ -43,7 +44,7 @@ export default function NewDeliveryForm({
     total_weight: 0,
     quantity: 0,
     amount_to_collect: 0,
-    description_and_price: "",
+    description_and_price: 0,
     merchant_id: 1,
   });
 
@@ -58,8 +59,7 @@ export default function NewDeliveryForm({
     formData.delivery_type,
   ]);
 
-  useEffect(() => {}, [delivery_charge]);
-
+  useEffect(() => {}, [formData.delivery_charge]);
   // Fetch product types from the backend when the component mounts
   useEffect(() => {
     const fetchProductTypes = async () => {
@@ -108,13 +108,16 @@ export default function NewDeliveryForm({
       total_weight: parseFloat(formData.total_weight),
       quantity: parseInt(formData.quantity),
       amount_to_collect: parseFloat(formData.amount_to_collect),
-      price: parseFloat(formData.description_and_price), // Assuming the price is the second part of the input
+      price:
+        parseFloat(formData.amount_to_collect || "0") +
+        parseFloat(delivery_charge || "0"), // Assuming the price is the second part of the input
       division: formData.division,
       zilla: formData.zilla,
       thana: formData.thana,
       delivery_status: "Pending",
       pickup_status: "Pending",
       delivery_charge: delivery_charge,
+
       // Example static values for agent, pickupMan, and deliveryMan
       // agent_id: 1,
       // pickup_man_id: 1,
@@ -132,13 +135,13 @@ export default function NewDeliveryForm({
       });
 
       if (response.ok) {
-        alert("Delivery created successfully!");
+        toast.success("Delivery created successfully!"); // Show success message
         // Handle success (reset form or redirect, etc.)
       } else {
-        console.error("Error creating delivery:", await response.text());
+        toast.error(`Error creating delivery: ${await response.text()}`); // Show error message
       }
     } catch (error) {
-      console.error("Error:", error);
+      toast.error(`Error occured. Try again!`); // Show error message
     }
     console.log(postData);
   };
@@ -327,8 +330,8 @@ export default function NewDeliveryForm({
                   value={formData.delivery_type}
                   onChange={handleInputChange}
                 >
-                  <option>Express</option>
                   <option>Free Shipping</option>
+                  <option>Express</option>
                   <option>Super Delivery</option>
                 </select>
               </div>
@@ -377,11 +380,15 @@ export default function NewDeliveryForm({
                   <FaExclamationCircle className="text-gray-600 text-sm" />
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  disabled
                   className="input input-bordered bg-[#eeffee] placeholder-gray-400"
                   placeholder="Enter description & price"
                   name="description_and_price"
-                  onChange={handleInputChange}
+                  value={
+                    parseFloat(formData.amount_to_collect || "0") +
+                    parseFloat(delivery_charge || "0")
+                  }
                 />
               </div>
             </div>
@@ -389,12 +396,17 @@ export default function NewDeliveryForm({
 
           <div className="flex space-x-2">
             <button
-              className="bg-[#008000] text-white px-5 py-2 rounded-lg"
+              type="submit"
+              style={{ cursor: "pointer" }}
+              className="bg-[#008000] text-white px-5 py-2 rounded-lg hover:bg-green-500"
               onClick={handleSubmit}
             >
               Save
             </button>
-            <button className="bg-[#CCFFCC] text-[#008000] px-5 py-2 rounded-lg">
+            <button
+              className="bg-[#CCFFCC] text-[#008000] px-5 py-2 rounded-lg"
+              style={{ cursor: "pointer" }}
+            >
               Cancel
             </button>
           </div>
